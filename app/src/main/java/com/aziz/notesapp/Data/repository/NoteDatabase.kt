@@ -1,0 +1,36 @@
+package com.aziz.notesapp.Data.repository
+
+import android.content.Context
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.aziz.notesapp.Data.Converter
+import com.aziz.notesapp.Data.model.NoteData
+
+@Database(entities = [NoteData::class], version = 1, exportSchema = false)
+@TypeConverters(Converter::class)
+abstract class NoteDatabase : RoomDatabase() {
+
+    abstract fun noteDao(): NoteDao
+
+    companion object {
+        @Volatile
+        private var INSTANCE: NoteDatabase? = null
+        fun getDatabse(context: Context): NoteDatabase {
+            val tempInstance = INSTANCE
+            if (tempInstance != null) {
+                return tempInstance
+            }
+            synchronized(this){
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    NoteDatabase::class.java,
+                    "note_database"
+                ).build()
+                INSTANCE = instance
+                return instance
+            }
+        }
+    }
+}
